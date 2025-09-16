@@ -8,7 +8,7 @@ const chatbotToggler = document.querySelector("#chatbot-toggler");
 const closeChatbot = document.querySelector("#close-chatbot");
 
 // API setup (Dify)
-const API_KEY = "app-4wILlQeQpEoR7ZUWnzHzfsO0";
+const API_KEY = "add";
 const API_URL = "https://api.dify.ai/v1";
 
 const userData = {
