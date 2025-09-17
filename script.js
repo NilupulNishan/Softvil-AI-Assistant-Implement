@@ -7,9 +7,9 @@ const fileCancelButton = document.querySelector("#file-cancel");
 const chatbotToggler = document.querySelector("#chatbot-toggler");
 const closeChatbot = document.querySelector("#close-chatbot");
 
-// API setup (Dify)
-const API_KEY = "app-4wILlQeQpEoR7ZUWnzHzfsO0";
-const API_URL = "https://api.dify.ai/v1";
+// **********API setup (Dify Advanced Chat - Local Installation)
+const API_KEY = "add_personalize_url"; // Your local Dify API key
+const API_URL = "http://localhost/v1/chat-messages"; // Correct: base + endpoint
 
 const userData = {
   message: null,
@@ -30,7 +30,7 @@ const createMessageElement = (content, ...classes) => {
   return div;
 };
 
-// Generate bot response using Dify API
+// **********Generate bot response using Dify Workflow API
 const generateBotResponse = async (incomingMessageDiv) => {
   const messageElement = incomingMessageDiv.querySelector(".message-text");
 
@@ -40,30 +40,56 @@ const generateBotResponse = async (incomingMessageDiv) => {
     content: userData.message,
   });
 
-  // API request options for Dify
+  // API request options for Dify Workflow
   const requestOptions = {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${API_KEY}`, // Corrected Authorization header
+      "Authorization": `Bearer ${API_KEY}`,
     },
     body: JSON.stringify({
-      inputs: {}, // Optional inputs for workflow variables
-      query: userData.message, // The actual user message
-      response_mode: "blocking", // Use "blocking" for normal response
-      user: "user-123", // Optional unique user ID
-      conversation_id: null, // Null for new chat, or pass conversation_id to continue
+      inputs: {},
+      query: userData.message,
+      response_mode: "blocking", // Use "streaming" for real-time responses
+      user: "user-123", // Unique user identifier
     }),
   };
 
   try {
-    // Fetch bot response from Dify API
+    // Fetch bot response from Dify Workflow API
     const response = await fetch(API_URL, requestOptions);
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || "API request failed");
+    
+    if (!response.ok) {
+      throw new Error(data.message || data.error?.message || "API request failed");
+    }
 
-    // Extract and display the bot response (Dify returns "answer")
-    const apiResponseText = data.answer?.trim() || "No response from bot.";
+    // Extract the workflow result
+    // The response structure for workflow is different from chat completion
+    let apiResponseText = "No response from workflow.";
+    
+    if (data.data && data.data.outputs) {
+      // If your workflow has a specific output variable, access it like:
+      // apiResponseText = data.data.outputs.answer || data.data.outputs.result;
+      
+      // For now, let's try to get the first available output
+      const outputs = data.data.outputs;
+      const outputKeys = Object.keys(outputs);
+      
+      if (outputKeys.length > 0) {
+        const firstOutputKey = outputKeys[0];
+        apiResponseText = outputs[firstOutputKey] || "Empty response from workflow.";
+      }
+      
+      // If you know the exact output variable name from your workflow, use:
+      // apiResponseText = data.data.outputs.your_output_variable_name;
+    }
+
+    // Handle different response types
+    if (typeof apiResponseText === 'object') {
+      apiResponseText = JSON.stringify(apiResponseText, null, 2);
+    }
+
     messageElement.innerText = apiResponseText;
 
     // Add bot response to chat history
@@ -71,9 +97,13 @@ const generateBotResponse = async (incomingMessageDiv) => {
       role: "assistant",
       content: apiResponseText,
     });
+
+    // Log the full response for debugging
+    console.log("Full Dify Response:", data);
+    
   } catch (error) {
-    console.error(error);
-    messageElement.innerText = error.message;
+    console.error("Dify API Error:", error);
+    messageElement.innerText = `Error: ${error.message}`;
     messageElement.style.color = "#ff0000";
   } finally {
     incomingMessageDiv.classList.remove("thinking");
@@ -81,10 +111,85 @@ const generateBotResponse = async (incomingMessageDiv) => {
   }
 };
 
+// **********Alternative: Streaming Response for Advanced Chat (uncomment to use)
+/*
+const generateBotResponseStreaming = async (incomingMessageDiv) => {
+  const messageElement = incomingMessageDiv.querySelector(".message-text");
+  
+  const requestOptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${API_KEY}`,
+    },
+    body: JSON.stringify({
+      inputs: {},
+      query: userData.message,
+      response_mode: "streaming",
+      user: "user-123",
+      conversation_id: window.difyConversationId || "",
+      files: []
+    }),
+  };
+
+  try {
+    const response = await fetch(API_URL, requestOptions);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "API request failed");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let accumulatedText = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      const lines = chunk.split('\n');
+      
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const jsonData = JSON.parse(line.slice(6));
+            
+            if (jsonData.event === 'message') {
+              accumulatedText = jsonData.answer;
+              messageElement.innerText = accumulatedText;
+            } else if (jsonData.event === 'message_end') {
+              // Final message received
+              if (jsonData.conversation_id) {
+                window.difyConversationId = jsonData.conversation_id;
+              }
+            }
+          } catch (e) {
+            // Skip invalid JSON lines
+          }
+        }
+      }
+    }
+    
+  } catch (error) {
+    console.error("Streaming Error:", error);
+    messageElement.innerText = `Error: ${error.message}`;
+    messageElement.style.color = "#ff0000";
+  } finally {
+    incomingMessageDiv.classList.remove("thinking");
+    chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
+  }
+};
+*/
+
 // Handle outgoing user messages
 const handleOutgoingMessage = (e) => {
   e.preventDefault();
   userData.message = messageInput.value.trim();
+  
+  if (!userData.message) return; // Don't send empty messages
+  
   messageInput.value = "";
   messageInput.dispatchEvent(new Event("input"));
 
@@ -131,7 +236,12 @@ const handleOutgoingMessage = (e) => {
     );
     chatBody.appendChild(incomingMessageDiv);
     chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
+    
+    // Call the workflow API
     generateBotResponse(incomingMessageDiv);
+    
+    // For streaming responses, uncomment this instead:
+    // generateBotResponseStreaming(incomingMessageDiv);
   }, 600);
 };
 
