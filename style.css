@@ -24,7 +24,7 @@ body {
   justify-content: center;
   cursor: pointer;
   border-radius: 50%;
-  background: #2D68C4;
+  background: #065796;
   transition: all 0.2s ease;
 }
 
@@ -70,7 +70,7 @@ body.show-chatbot .chatbot-popup {
 .chat-header {
   display: flex;
   align-items: center;
-  background: #2D68C4;
+  background: #065796;
   padding: 15px 22px;
   justify-content: space-between;
 }
@@ -85,7 +85,7 @@ body.show-chatbot .chatbot-popup {
   height: 35px;
   width: 35px;
   padding: 6px;
-  fill: #2D68C4;
+  fill: #065796;
   flex-shrink: 0;
   background: #fff;
   border-radius: 50%;
@@ -112,7 +112,7 @@ body.show-chatbot .chatbot-popup {
 }
 
 .chat-header #close-chatbot:hover {
-  background: #2D68C4;
+  background: #065796;
 }
 
 .chat-body {
@@ -124,7 +124,7 @@ body.show-chatbot .chatbot-popup {
   overflow-y: auto;
   flex-direction: column;
   scrollbar-width: thin;
-  scrollbar-color: #ccccf5 transparent;
+  scrollbar-color: #3dbde8 transparent;
 }
 
 .chat-body .message {
@@ -141,7 +141,7 @@ body.show-chatbot .chatbot-popup {
   flex-shrink: 0;
   margin-bottom: 2px;
   align-self: flex-end;
-  background: #2D68C4;
+  background: #065796;
   border-radius: 50%;
 }
 
@@ -168,7 +168,7 @@ body.show-chatbot .chatbot-popup {
 
 .chat-body .user-message .message-text {
   color: #fff;
-  background-color: #2D68C4;
+  background-color: #065796;
   border-radius: 13px 13px 3px 13px;
 }
 
@@ -232,7 +232,7 @@ body.show-chatbot .chatbot-popup {
 }
 
 .chat-footer .chat-form:focus-within {
-  outline: 2px solid #2D68C4;
+  outline: 2px solid #065796;
 }
 
 .chat-form .message-input {
@@ -251,7 +251,7 @@ body.show-chatbot .chatbot-popup {
 }
 
 .chat-form .message-input::hover {
-  scrollbar-color: #ccccf5 transparent;
+  scrollbar-color: #3dbde8 transparent;
 }
 
 .chat-form .chat-controls {
@@ -278,7 +278,7 @@ body.show-chatbot .chatbot-popup {
 .chat-form .chat-controls #send-message {
   color: #fff;
   display: none;
-  background:#2D68C4;
+  background:#065796;
 }
 
 .chat-form .message-input:valid ~ .chat-controls #send-message {
@@ -286,7 +286,7 @@ body.show-chatbot .chatbot-popup {
 }
 
 .chat-form .chat-controls #send-message:hover {
-  background: #3965ac;
+  background: #3dbde8;
 }
 
 .chat-form .chat-controls button:hover {

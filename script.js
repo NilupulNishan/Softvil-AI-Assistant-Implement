@@ -8,7 +8,7 @@ const chatbotToggler = document.querySelector("#chatbot-toggler");
 const closeChatbot = document.querySelector("#close-chatbot");
 
 // **********API setup (Dify Advanced Chat - Local Installation)
-const API_KEY = "add_personalize_url"; // Your local Dify API key
+const API_KEY = "app-O3vKhZmjBhpw0etb3vseg7Ko"; // Your local Dify API key
 const API_URL = "http://localhost/v1/chat-messages"; // Correct: base + endpoint
 
 const userData = {
